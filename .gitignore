@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+.local/
+.model-settings.json
+日记/
+整理/
+记忆/
+附件/

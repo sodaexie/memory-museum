@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f8f7f3">
+  <title>心迹</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/graph.js" defer></script>
+  <script src="/model-settings.js" defer></script>
+  <script src="/attachments.js" defer></script>
+  <script src="/progress.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#today">
+      <span class="brand-mark" aria-hidden="true"><span></span></span>
+      <span>心迹</span>
+    </a>
+    <nav aria-label="主要导航">
+      <a href="#today" data-page="today"><span aria-hidden="true" class="icon icon-write"></span>写日记</a>
+      <a href="#journey" data-page="journey"><span aria-hidden="true" class="icon icon-journey"></span>心路历程</a>
+      <a href="#graph" data-page="graph"><span aria-hidden="true" class="icon icon-graph"></span>关键词关联图</a>
+      <a href="#archive" data-page="archive"><span aria-hidden="true" class="icon icon-search"></span>翻阅往事</a>
+      <a href="#memory" data-page="memory"><span aria-hidden="true" class="icon icon-memory"></span>关于我</a>
+      <a href="#settings" data-page="settings"><span aria-hidden="true" class="icon icon-settings"></span>模型设置</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="storage-state"><span class="storage-dot"></span>原文保存在本机</div>
+      <button type="button" id="model-status" class="model-status" title="点击检查模型状态">正在检查模型</button>
+    </div>
+  </aside>
+
+  <main id="main" class="main" tabindex="-1">
+    <div id="demo-banner" class="demo-banner" hidden>示例模式 · 当前是虚构日记，整理和建议用示例规则演示。</div>
+
+    <section id="view-today" class="view" aria-labelledby="today-heading">
+      <header class="page-header">
+        <p id="header-date" class="page-date"></p>
+        <h1 id="today-heading">今天，想记下什么？</h1>
+      </header>
+
+      <div class="today-grid">
+        <div class="card writing-card">
+          <form id="entry-form">
+            <div class="card-top">
+              <label class="date-label">记录日期 <input id="entry-date" type="date" required aria-label="记录日期"></label>
+              <button id="fill-sample" type="button" class="text-button" hidden>填入示例</button>
+            </div>
+            <label class="sr-only" for="entry-text">日记正文</label>
+            <textarea id="entry-text" maxlength="6000" placeholder="今天发生了什么？&#10;一句话，或几件小事，都可以。"></textarea>
+            <fieldset id="entry-attachments" class="attachment-controls">
+              <legend class="sr-only">给日记添加附件</legend>
+              <ul id="draft-images" class="attachment-images" aria-label="已添加的图片" hidden></ul>
+              <ul id="draft-links" class="attachment-links" aria-label="已添加的链接" hidden></ul>
+              <div class="attachment-actions">
+                <input id="entry-images" type="file" accept="image/jpeg,image/png,image/gif,image/webp,.jpg,.jpeg,.png,.gif,.webp" multiple hidden>
+                <button id="attach-image" class="text-button" type="button">添加图片</button>
+                <button id="attach-link" class="text-button" type="button" aria-expanded="false" aria-controls="link-editor">添加链接</button>
+              </div>
+              <div id="link-editor" class="link-editor" hidden>
+                <label class="sr-only" for="entry-link">帖子链接或分享文字</label>
+                <input id="entry-link" type="text" inputmode="url" maxlength="5000" placeholder="粘贴网址或帖子分享文字" autocomplete="off" spellcheck="false">
+                <button id="confirm-link" class="button secondary" type="button">加入</button>
+              </div>
+            </fieldset>
+            <div class="card-bottom">
+              <div class="editor-meta">
+                <span id="entry-length" class="muted counter">0 字</span>
+                <div id="save-status" class="form-feedback" role="status" hidden></div>
+              </div>
+              <button id="save-entry" class="button primary" type="submit">保存日记</button>
+            </div>
+          </form>
+        </div>
+
+        <aside class="card reflection-card" aria-labelledby="reflection-heading">
+          <h2 id="reflection-heading">写完后回看</h2>
+          <div id="reflection" aria-live="polite">
+            <p class="muted reflection-copy">保存后，这里会出现人物、主题，以及值得回看的相关旧事。</p>
+          </div>
+        </aside>
+
+        <section class="today-recent" aria-labelledby="recent-heading">
+          <div class="section-heading">
+            <h2 id="recent-heading">最近写下</h2>
+            <a href="#archive" class="quiet-link">翻阅全部 <span aria-hidden="true">→</span></a>
+          </div>
+          <div id="recent-list" class="note-list"></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="view-journey" class="view" aria-labelledby="journey-heading" hidden>
+      <header class="page-header compact">
+        <h1 id="journey-heading">心路历程</h1>
+        <p class="header-description">把同一件事放回时间里，看看那时在意什么，后来又想到了什么。</p>
+      </header>
+      <section id="journey-progress" class="journey-progress" aria-labelledby="progress-heading" hidden>
+        <div class="section-heading">
+          <h2 id="progress-heading">成长足迹</h2>
+          <button id="progress-refresh" class="text-button" type="button" hidden>整理足迹</button>
+        </div>
+        <p id="progress-feedback" class="form-feedback progress-feedback" role="status">正在读取足迹…</p>
+        <div id="progress-list" class="progress-list"></div>
+      </section>
+      <form id="journey-form" class="journey-form">
+        <label for="journey-query">想回看的事
+          <input id="journey-query" type="search" maxlength="140" placeholder="关键词或主题，比如临时改约">
+        </label>
+        <label for="journey-person"><span>关联人物 <span class="muted">（可选）</span></span>
+          <input id="journey-person" type="search" maxlength="60" placeholder="名字或日记里的称呼">
+        </label>
+        <button type="submit" class="button primary">查看时间线</button>
+      </form>
+      <div class="journey-layout">
+        <section class="journey-main" aria-labelledby="journey-records-heading">
+          <div class="section-heading journey-section-heading">
+            <h2 id="journey-records-heading">沿途的记录</h2>
+            <p id="journey-count" class="muted result-count" role="status"></p>
+          </div>
+          <div id="journey-empty" class="empty-state">输入一件事或一个人，看看当时的记录。</div>
+          <ol id="journey-timeline" class="journey-timeline"></ol>
+        </section>
+        <aside id="journey-review-panel" class="card journey-review" aria-labelledby="journey-review-heading" hidden>
+          <h2 id="journey-review-heading">提炼这段变化</h2>
+          <p class="muted reflection-copy">选中同一件事的几条记录，回看你的想法怎么变、为什么变。</p>
+          <button id="journey-review-button" class="button secondary" type="button">提炼选中记录</button>
+          <div id="journey-feedback" class="form-feedback" role="status" hidden></div>
+          <div id="journey-insight" aria-live="polite"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="view-graph" class="view" aria-labelledby="graph-heading" hidden>
+      <header class="page-header compact">
+        <h1 id="graph-heading">关键词关联图</h1>
+        <p class="header-description">沿着一起出现过的人物、主题和标签，找回它们对应的日记。</p>
+      </header>
+      <form id="graph-form" class="graph-form">
+        <label class="sr-only" for="graph-query">查找人物、主题或标签</label>
+        <input id="graph-query" type="search" maxlength="80" placeholder="找一个关键词，比如小 A 或约定变化">
+        <button class="button primary" type="submit">查找关联</button>
+      </form>
+      <div class="graph-layout">
+        <section class="card graph-card" aria-label="日记关键词网络">
+          <div class="graph-top">
+            <div class="graph-legend" aria-label="节点类型">
+              <span class="graph-type person">人物</span>
+              <span class="graph-type topic">主题</span>
+              <span class="graph-type tag">标签</span>
+            </div>
+            <span id="graph-count" class="muted" role="status"></span>
+          </div>
+          <div id="graph-empty" class="empty-state" hidden></div>
+          <div id="graph-surface" class="graph-surface">
+            <canvas id="graph-lines" aria-label="可以点击线条查看共同出现的日记"></canvas>
+            <div id="graph-nodes" class="graph-nodes"></div>
+          </div>
+        </section>
+        <aside id="graph-detail" class="card graph-detail" aria-live="polite"></aside>
+      </div>
+    </section>
+
+    <section id="view-archive" class="view" aria-labelledby="archive-heading" hidden>
+      <header class="page-header compact">
+        <h1 id="archive-heading">翻阅往事</h1>
+        <p class="header-description">按人物、主题或原文关键词找回记录。</p>
+      </header>
+      <form id="search-form" class="search-row">
+        <label class="sr-only" for="search-query">搜索日记</label>
+        <input id="search-query" type="search" placeholder="试试小 A、改约，或一句记得的话" maxlength="200">
+        <label class="sr-only" for="search-kind">搜索范围</label>
+        <select id="search-kind"><option value="all">全部</option><option value="person">人物</option><option value="topic">主题</option><option value="text">原文</option></select>
+        <button class="button primary" type="submit">搜索</button>
+      </form>
+      <div id="search-filters" class="search-filters"></div>
+      <div id="search-result-count" class="muted result-count" role="status"></div>
+      <div id="archive-list" class="note-list"></div>
+    </section>
+
+    <section id="view-memory" class="view" aria-labelledby="memory-heading" hidden>
+      <header class="page-header compact">
+        <h1 id="memory-heading">关于我</h1>
+        <p class="header-description">把想提醒未来自己的偏好、边界和经验留在这里。</p>
+      </header>
+      <div class="memory-grid">
+        <form id="memory-form" class="card memory-form">
+          <h2 id="memory-form-heading">记住一件事</h2>
+          <label for="memory-text">想留下的经验</label>
+          <textarea id="memory-text" maxlength="500" rows="5" required placeholder="例如，安排变化时，我希望对方尽量提前告诉我。"></textarea>
+          <label for="memory-source">关联日记 <span class="muted">（可选）</span></label>
+          <select id="memory-source" multiple size="4"></select>
+          <div class="memory-actions">
+            <button id="memory-cancel" class="text-button" type="button" hidden>取消编辑</button>
+            <button class="button primary" type="submit">保存记忆</button>
+          </div>
+          <div id="memory-status" class="form-feedback" role="status" hidden></div>
+        </form>
+        <div id="memory-list" class="memory-list"></div>
+      </div>
+    </section>
+
+    <section id="view-settings" class="view" aria-labelledby="settings-heading" hidden>
+      <header class="page-header compact">
+        <h1 id="settings-heading">模型设置</h1>
+        <p class="header-description">选择用本机模型，或连接你自己的 API。</p>
+      </header>
+      <form id="model-form" class="card model-form" autocomplete="off">
+        <div id="model-demo-note" class="model-note" hidden>当前为示例模式。个人模式支持测试和保存配置。</div>
+        <label for="model-provider">连接方式</label>
+        <select id="model-provider" required disabled>
+          <option value="ollama">Ollama · 本机模型</option>
+          <option value="openai">OpenAI · GPT</option>
+          <option value="compatible">自定义 · OpenAI 兼容 API</option>
+        </select>
+        <label for="model-name">模型名称</label>
+        <input id="model-name" type="text" maxlength="160" required>
+        <div id="model-url-row" hidden>
+          <label for="model-url">API 基础地址</label>
+          <input id="model-url" type="url" maxlength="500" placeholder="https://example.com/v1" spellcheck="false">
+          <p class="muted model-help">模型需支持 Chat Completions 和 JSON 模式。</p>
+        </div>
+        <div id="model-key-row" hidden>
+          <label for="model-api-key">API Key</label>
+          <input id="model-api-key" type="password" maxlength="4096" autocomplete="off" spellcheck="false">
+          <p id="model-key-help" class="muted model-help">密钥保存在本机。</p>
+        </div>
+        <div id="model-api-options" hidden>
+          <p class="model-note">使用 API 整理时，本次分析用到的日记和摘录会发给该服务。</p>
+          <label class="model-toggle"><input id="model-auto" type="checkbox"> 保存日记后自动用这个 API 整理</label>
+        </div>
+        <div class="model-actions">
+          <button id="model-delete-key" class="text-button" type="button" hidden>删除已存 Key</button>
+          <button id="model-test" class="button secondary" type="button" disabled>测试连接</button>
+          <button id="model-save" class="button primary" type="submit" disabled>保存设置</button>
+        </div>
+        <p id="model-form-status" class="form-feedback" role="status" hidden></p>
+      </form>
+    </section>
+
+    <section id="view-entry" class="view" aria-labelledby="entry-heading" hidden>
+      <header class="page-header compact">
+        <a id="detail-back" href="#archive" class="quiet-link">← 返回往事</a>
+        <h1 id="entry-heading">日记原文</h1>
+        <p id="detail-date" class="page-date"></p>
+      </header>
+      <div class="detail-grid">
+        <article class="card original-card">
+          <div id="detail-text" class="original-text"></div>
+          <section id="detail-attachments" class="detail-attachments" aria-labelledby="detail-attachments-heading" hidden>
+            <h2 id="detail-attachments-heading">图片和链接</h2>
+            <ul id="detail-images" class="attachment-images" aria-label="日记图片" hidden></ul>
+            <ul id="detail-links" class="attachment-links" aria-label="日记链接" hidden></ul>
+          </section>
+        </article>
+        <div id="detail-metadata"></div>
+      </div>
+      <section id="detail-events-section" class="recent-section" hidden>
+        <div class="section-heading"><h2>记录里的事件</h2></div>
+        <div id="detail-events" class="entry-list"></div>
+      </section>
+      <section id="detail-related-section" class="recent-section" hidden>
+        <div class="section-heading"><h2>相关旧事</h2></div>
+        <div id="detail-related" class="note-list"></div>
+      </section>
+    </section>
+    <div id="app-error" class="form-feedback error global-error" role="alert" hidden></div>
+  </main>
+</body>
+</html>
