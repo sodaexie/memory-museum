@@ -1,4 +1,4 @@
-# 心迹
+# 记忆博物馆
 
 在本机写日记、查往事、留下自己确认过的经验。可以用本机 Ollama 或自己配置的 API 提取事件、人物和标签。页面会显示相关旧事及可点开的原文。模型有足够依据时会给一条简短建议。
 
@@ -28,7 +28,7 @@ python3 app.py --open
 
 打开侧栏的「模型设置」。
 
-- **Ollama** 使用你的本机模型。安装并打开 [Ollama for macOS](https://docs.ollama.com/macos)，运行 `ollama pull qwen3:4b`，或选择已经下载的其他模型。心迹使用本机地址 `127.0.0.1:11434`。
+- **Ollama** 使用你的本机模型。安装并打开 [Ollama for macOS](https://docs.ollama.com/macos)，运行 `ollama pull qwen3:4b`，或选择已经下载的其他模型。记忆博物馆使用本机地址 `127.0.0.1:11434`。
 - **OpenAI** 填入你自己的 API Key 和账号有权使用的模型名称。默认预填 `gpt-6-luna`，调用 OpenAI 官方 Responses API。
 - **自定义 API** 填入服务商的基础地址、模型名称和 API Key。兼容接口需支持 Chat Completions 的 JSON 模式。远程地址使用 HTTPS。
 
@@ -48,7 +48,7 @@ API Key 保存在数据目录下仅当前系统用户可读写的 `.model-settin
 
 ## 本机数据
 
-新存档默认保存在 `~/Library/Application Support/心迹`。已有「日记管家」的存档时，心迹会从原目录读写。用 Finder 的「前往文件夹」可打开，也可以用 `--data-dir` 在启动时指定本地目录。备份完整日记时请一并备份以下目录。
+新存档默认保存在 `~/Library/Application Support/记忆博物馆`。已有「心迹」或「日记管家」存档时，程序会继续读写原目录。用 Finder 的「前往文件夹」可打开，也可以用 `--data-dir` 在启动时指定本地目录。备份完整日记时请一并备份以下目录。
 
 - **日记**存储按日期命名的 Markdown 原文。
 - **整理**存储摘要、原文引句、标签和建议。详情页可改人物和自定义主题标签。

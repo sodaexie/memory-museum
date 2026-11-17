@@ -71,6 +71,10 @@ class JourneyTests(unittest.TestCase):
     def test_new_name_preserves_legacy_default_data_path(self):
         parent = Path(self.temp.name)
         with patch("app.DATA_PARENT", parent):
-            self.assertEqual(default_data(), parent / "心迹")
+            self.assertEqual(default_data(), parent / "记忆博物馆")
             (parent / "日记管家").mkdir()
             self.assertEqual(default_data(), parent / "日记管家")
+            (parent / "心迹").mkdir()
+            self.assertEqual(default_data(), parent / "心迹")
+            (parent / "记忆博物馆").mkdir()
+            self.assertEqual(default_data(), parent / "记忆博物馆")

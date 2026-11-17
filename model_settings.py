@@ -8,7 +8,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit, urlunsplit
 from urllib.request import ProxyHandler, Request, build_opener
 
-from journal import DemoModel, InvalidInput, JournalModel, ModelUnavailable, NoRedirect, Ollama, atomic_write, read_json
+from journal import APP_NAME, DemoModel, InvalidInput, JournalModel, ModelUnavailable, NoRedirect, Ollama, atomic_write, read_json
 
 DEFAULT_OPENAI_MODEL = "gpt-6-luna"
 OPENAI_BASE = "https://api.openai.com/v1"
@@ -114,7 +114,7 @@ class ApiModel(JournalModel):
             response = self.request("/responses", {
                 "model": self.model, "store": False, "max_output_tokens": 4096,
                 "instructions": instruction, "input": user_input,
-                "text": {"format": {"type": "json_schema", "name": "xinji_result",
+                "text": {"format": {"type": "json_schema", "name": "memory_museum_result",
                                     "schema": strict_schema(schema), "strict": True}},
             }, timeout)
         else:
@@ -235,7 +235,7 @@ class ModelSettings:
         candidate = self.candidate(payload)
         model = self.to_model(candidate)
         arguments = ("你是连接测试助手。只返回一个 JSON 对象，字段 ok 的值为 true。",
-                     {"message": "心迹的固定连接测试"}, PROBE_SCHEMA)
+                     {"message": f"{APP_NAME}的固定连接测试"}, PROBE_SCHEMA)
         if isinstance(model, ApiModel):
             result = model.chat(*arguments, timeout=25)
         else:

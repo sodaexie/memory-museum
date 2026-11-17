@@ -15,14 +15,13 @@ from zoneinfo import ZoneInfo
 from associations import build_graph
 from journey import assess, timeline
 from journal import (
-    DEMO_TEXT, MAX_TOTAL_IMAGE_BYTES, TOPICS, AnalysisBusy, InvalidInput, JournalStore, MissingEntry,
+    APP_NAME, DEMO_TEXT, MAX_TOTAL_IMAGE_BYTES, TOPICS, AnalysisBusy, InvalidInput, JournalStore, MissingEntry,
     ModelUnavailable, analyze, detail, entry_summary, find_entries, seed_demo,
 )
 from model_settings import ModelSettings
 from progress import cached_threads, organize_progress, progress_sources, seed_demo_progress
 
 ROOT = Path(__file__).resolve().parent
-APP_NAME = "心迹"
 DATA_PARENT = Path.home() / "Library" / "Application Support"
 TIMEZONE = ZoneInfo("Asia/Shanghai")
 MAX_ENTRY_REQUEST_BYTES = 4 * ((MAX_TOTAL_IMAGE_BYTES + 2) // 3) + 128 * 1024
@@ -39,8 +38,12 @@ STATIC = {
 
 def default_data():
     current = DATA_PARENT / APP_NAME
-    legacy = DATA_PARENT / "日记管家"
-    return legacy if legacy.is_dir() and not current.exists() else current
+    if not current.exists():
+        for old_name in ("心迹", "日记管家"):
+            previous = DATA_PARENT / old_name
+            if previous.is_dir():
+                return previous
+    return current
 
 
 def today():
@@ -96,7 +99,7 @@ class Handler(BaseHTTPRequestHandler):
             or fetch_site == "cross-site"
             or (write and self.headers.get_content_type() != "application/json")
         ):
-            self.reply({"error": "请从心迹的本机页面打开。"}, 403)
+            self.reply({"error": f"请从{APP_NAME}的本机页面打开。"}, 403)
             return False
         return True
 
@@ -276,11 +279,12 @@ def start(args, directory):
     try:
         server = JournalServer(args.port, store, settings)
     except PermissionError as exc:
-        raise SystemExit("当前环境不能监听本机端口。请从 Mac 终端运行心迹。") from exc
+        raise SystemExit(f"当前环境不能监听本机端口。请从 Mac 终端运行{APP_NAME}。") from exc
     except OSError as exc:
-        raise SystemExit("端口不可用。请关闭已运行的心迹，或用 --port 指定另一个端口。") from exc
+        raise SystemExit(f"端口不可用。请关闭已运行的{APP_NAME}，或用 --port 指定另一个端口。") from exc
     url = f"http://127.0.0.1:{server.server_port}"
-    print(f"{'心迹（示例模式）' if args.demo else APP_NAME}  {url}", flush=True)
+    mode = "（示例模式）" if args.demo else ""
+    print(f"{APP_NAME}{mode}  {url}", flush=True)
     print(f"{'虚构日记临时目录' if args.demo else '本地日记目录'}：{directory}", flush=True)
     print("按 Control+C 停止。", flush=True)
     if args.open:
@@ -289,11 +293,11 @@ def start(args, directory):
         try:
             server.serve_forever()
         except KeyboardInterrupt:
-            print("\n已关闭心迹。")
+            print(f"\n已关闭{APP_NAME}。")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="心迹 · 本地日记助手")
+    parser = argparse.ArgumentParser(description=f"{APP_NAME} · 本地日记助手")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--data-dir", type=Path, default=default_data())
     parser.add_argument("--model", default="qwen3:4b", help="未保存模型设置时使用的本地 Ollama 模型")

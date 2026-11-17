@@ -57,6 +57,7 @@ h3 { font-size: 14px; font-weight: 600; }
   width: fit-content;
   margin-left: 9px;
   font: 600 24px/1 var(--head);
+  white-space: nowrap;
 }
 .brand-mark {
   display: grid;
@@ -480,6 +481,7 @@ textarea::placeholder, input::placeholder { color: #70766d; opacity: 1; }
 @media (max-width: 1120px) {
   :root { --sidebar-width: 188px; }
   .sidebar { padding-inline: 15px; }
+  .brand { margin-left: 6px; gap: 8px; font-size: 20px; }
   .main { padding-inline: 34px; }
   .today-grid, .detail-grid, .memory-grid, .journey-layout, .graph-layout { column-gap: 16px; }
 }
@@ -508,7 +510,7 @@ textarea::placeholder, input::placeholder { color: #70766d; opacity: 1; }
   .sidebar nav a[data-page="memory"] { margin-top: 0; }
   .sidebar nav .icon, .storage-state { display: none; }
   .sidebar-footer { grid-column: 2; grid-row: 1; border: 0; margin: 0; padding: 0; }
-  .model-status { padding: 4px 0; }
+  .model-status { max-width: 41vw; padding: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .main { margin-left: 0; padding: 31px 16px 44px; }
   .demo-banner { margin-bottom: 21px; }
   .page-header { margin-bottom: 22px; }
